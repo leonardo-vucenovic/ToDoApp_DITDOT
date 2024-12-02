@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using NSwag;
 using NSwag.Generation.Processors.Security;
+using Microsoft.EntityFrameworkCore;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -14,6 +15,10 @@ public static class DependencyInjection
     public static IServiceCollection AddWebServices(this IServiceCollection services)
     {
         services.AddDatabaseDeveloperPageExceptionFilter();
+
+        services.AddDbContext<ApplicationDbContext>(options =>
+            options.UseSqlServer(services.BuildServiceProvider().GetRequiredService<IConfiguration>().GetConnectionString("DefaultConnection"))
+        );
 
         services.AddScoped<IUser, CurrentUser>();
 

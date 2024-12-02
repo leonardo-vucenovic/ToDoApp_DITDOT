@@ -1,6 +1,7 @@
 ﻿using ToDoApp.Application.Common.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace ToDoApp.Web.Infrastructure;
 
@@ -36,8 +37,8 @@ public class CustomExceptionHandler : IExceptionHandler
     private async Task HandleValidationException(HttpContext httpContext, Exception ex)
     {
         var exception = (ValidationException)ex;
-
         httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+        httpContext.Items["Errors"] = exception.Errors;
 
         await httpContext.Response.WriteAsJsonAsync(new ValidationProblemDetails(exception.Errors)
         {
@@ -49,8 +50,8 @@ public class CustomExceptionHandler : IExceptionHandler
     private async Task HandleNotFoundException(HttpContext httpContext, Exception ex)
     {
         var exception = (NotFoundException)ex;
-
         httpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+        httpContext.Items["Errors"] = exception.Message;
 
         await httpContext.Response.WriteAsJsonAsync(new ProblemDetails()
         {
@@ -63,7 +64,9 @@ public class CustomExceptionHandler : IExceptionHandler
 
     private async Task HandleUnauthorizedAccessException(HttpContext httpContext, Exception ex)
     {
+        var exception = (UnauthorizedAccessException)ex;
         httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
+        httpContext.Items["Errors"] = exception.Message;
 
         await httpContext.Response.WriteAsJsonAsync(new ProblemDetails
         {
@@ -75,7 +78,9 @@ public class CustomExceptionHandler : IExceptionHandler
 
     private async Task HandleForbiddenAccessException(HttpContext httpContext, Exception ex)
     {
+        var exception = (ForbiddenAccessException)ex;
         httpContext.Response.StatusCode = StatusCodes.Status403Forbidden;
+        httpContext.Items["Errors"] = exception.Message;
 
         await httpContext.Response.WriteAsJsonAsync(new ProblemDetails
         {
